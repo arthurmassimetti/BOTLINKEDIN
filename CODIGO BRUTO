@@ -1,93 +1,91 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-import os
+import re
 import time
+import pyodbc
+from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common import by
+from selenium.webdriver import Keys
+from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.action_chains import ActionChains
-import pyautogui
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-# Diretório onde estão os arquivos PDF
-pasta_pdfs = "C:/Users/ProOcupacional/Downloads/pdfassinar"
+navegador = webdriver.Chrome()
 
+urlgov = "https://www.linkedin.com/feed/"
+navegador.get(urlgov)
+navegador.maximize_window()
+wait = WebDriverWait(navegador, 30)
+loginja = navegador.find_element(By.XPATH, "/html/body/div[1]/main/div/p/a").click()
+time.sleep(1)
+emailclick = navegador.find_element(By.XPATH, "/html/body/div/main/div[2]/div[1]/form/div[1]/input").click()
+time.sleep(1)
+emailsend = navegador.find_element(By.XPATH, "/html/body/div/main/div[2]/div[1]/form/div[1]/input").send_keys("EMAIL AQUI") #Aqui você coloca seu email de acesso
+time.sleep(1)
+senhaclick = navegador.find_element(By.XPATH, "/html/body/div/main/div[2]/div[1]/form/div[2]/input").click()
+time.sleep(1)
+senhasend = navegador.find_element(By.XPATH, "/html/body/div/main/div[2]/div[1]/form/div[2]/input").send_keys("SENHA AQUI") #Aqui você coloca sua senha do Linkedin
+time.sleep(1)
+entrarclick = navegador.find_element(By.XPATH, "/html/body/div/main/div[2]/div[1]/form/div[3]/button").click()
+time.sleep(2)
+wait = WebDriverWait(navegador, 30)
+pesquisar = navegador.find_element(By.XPATH, "/html/body/div[5]/header/div/div/div/div[1]/input").click()
+pesquisarnome = navegador.find_element(By.XPATH, "/html/body/div[5]/header/div/div/div/div[1]/input").send_keys("programador")
+time.sleep(1)
+pesquisar2 = navegador.find_element(By.XPATH, "/html/body/div[5]/header/div/div/div/div[1]/input").send_keys(Keys.ENTER)
+time.sleep(3)
+wait = WebDriverWait(navegador, 30)
+pessoas = navegador.find_element(By.XPATH, "/html/body/div[5]/div[3]/div[2]/section/div/nav/div/ul/li[2]/button").click()
+time.sleep(2)
+wait = WebDriverWait(navegador, 30)
+#Bem vindo ao looping, está parte é responsavel por repetir o processo de: localizar as palavras "CONECTAR" dentro da pagina, clicar uma por uma, adicionar nota e escrever um breve texto pegando o primeiro nome do usuario, quando termina a pagina, ele segue para a outra mantendo os mesmo processos
+try:
+    while True:
 
+        avancar_button = None
+        try:
+            wait = WebDriverWait(navegador, 30)
+            avancar_button = wait.until(EC.presence_of_element_located((By.XPATH, '//button[contains(@aria-label, "Avançar")]')))
+        except NoSuchElementException:
+            pass
 
-# Loop através dos arquivos no diretório
-for nome_arquivo in os.listdir(pasta_pdfs):
-    if nome_arquivo.endswith('.pdf'):
-        # Diretório onde estão os arquivos PDF
-        pasta_pdfs = "C:/Users/ProOcupacional/Downloads/pdfassinar"
+        if avancar_button:
 
-        # URL do site onde você deseja fazer o upload
-        url_site = 'https://secure.d4sign.com.br/login.html'
-
-        # Inicialize o driver do Selenium (certifique-se de ter o WebDriver adequado instalado e configurado)
-        driver = webdriver.Chrome()  # Você precisa ter o ChromeDriver instalado para usar o Chrome
-
-        # Abra a página da web
-        driver.get(url_site)
-        driver.maximize_window()
-
-        # Encontre os elementos na página de login
-        campo_email = driver.find_element(By.XPATH, '/html/body/div/div/div/div/div/div[1]/form/div[2]/input')
-        campo_senha = driver.find_element(By.XPATH, '/html/body/div/div/div/div/div/div[1]/form/div[3]/div[2]/div[1]/input[1]')
-        botao_logar = driver.find_element(By.XPATH, '/html/body/div/div/div/div/div/div[1]/form/div[3]/button')
-
-        # Faça login
-        campo_email.send_keys("EMAIL DE ACESSO PARA O D4SIGNN")
-        campo_senha.send_keys("SENHA DE ACESSO PARA O D4SIGN")
-        botao_logar.click()
-        wait = WebDriverWait(driver, 30)
-
-        # Loop através dos arquivos no diretório
-        caminho_arquivo = os.path.join(pasta_pdfs, nome_arquivo)
-        cliquearqueivoenviar = driver.find_element(By.XPATH,"/html/body/div[2]/div/div[2]/div[2]/div[2]/div/div[3]/div/div/a/p[2]").click()
-        time.sleep(1)
-        pcmsoclique = driver.find_element(By.XPATH,"/html/body/div[7]/div[2]/div/div[2]/div[1]/div/form/select/option[2]").click()
-        time.sleep(1)
-
-        # Localize o elemento de entrada de arquivo (input type="file") na página
-        elemento_input_arquivo = driver.find_element(By.XPATH, '/html/body/div[7]/div[2]/div/div[2]/div[1]/div/form/div/span/input')
-
-        # Envie o caminho do arquivo para o elemento de entrada de arquivo
-        elemento_input_arquivo.send_keys(caminho_arquivo)
-
-        # Aguarde o upload ser concluído (você pode ajustar o tempo de espera conforme necessário)
-        time.sleep(6)  # Aguarda 5 segundos (ajuste conforme necessário)
-
-        # Remova o arquivo após o upload para substituí-lo
-        os.remove(caminho_arquivo)
-        wait = WebDriverWait(driver, 30)
-        time.sleep(9)
+            try:
+                avancar_button.click()
+            except Exception:
+                pass
 
 
-        pyautogui.click(713, 800) # (TUILIZANDO PYAUTOGUI, MUDA A ESCALA DE MONITOR PARA MONITOR)
-        time.sleep(3)
-        pyautogui.click(713, 800) # (TUILIZANDO PYAUTOGUI, MUDA A ESCALA DE MONITOR PARA MONITOR)
-        confirmafechar = driver.find_element(By.XPATH, "/html/body/div[5]/div/div/div[2]/div[1]/div/div/p[8]/a").click()
-        time.sleep(1)
-        contatos = driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div[1]/div/div/div/div[5]/div/div[2]/div[1]/span[2]/a").click()
-        time.sleep(1)
-        assinaseleciona = driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div/div[2]/div[1]/div[3]/table/tbody/tr[1]/td[1]/input").click()
-        time.sleep(1)
-        confirmaassina = driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div/div[2]/div[1]/div[4]/div[1]/button").click()
-        time.sleep(1)
-        fechaassina = driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div/div[1]/button").click()
-        wait = WebDriverWait(driver, 30)
-        elemento = driver.find_element(By.XPATH,'/html/body/div[3]/div/div[2]/div/div[2]/div[2]/div[4]/div/div/canvas[15]')
-        # Role a tela até o elemento visível
-        actions = ActionChains(driver)
-        actions.move_to_element(elemento)
-        actions.perform()
-        pyautogui.click(1215,484)
-        time.sleep(1)
-        enviarassinatura = driver.find_element(By.XPATH, "/html/body/div[3]/div/div[2]/div/div[1]/div/div/div/div[5]/div/div[4]/button").click()
-        time.sleep(1)
-        enviarparaassinatura = driver.find_element(By.XPATH, "/html/body/div[5]/div[2]/div/div[2]/div[1]/form[1]/input[5]").click()
+        botoes_conectar = None
+        try:
+            wait = WebDriverWait(navegador, 30)
+            botoes_conectar = wait.until(EC.presence_of_all_elements_located((By.XPATH, '//span[text()="Conectar"]')))
+        except NoSuchElementException:
+            pass
 
-        driver.close()
+        if not botoes_conectar:
+            break
+
+        for botao in botoes_conectar:
+            botao.click()
 
 
+            nome_do_usuario = navegador.find_element(By.XPATH, '//strong').text
+            nome_completo = nome_do_usuario
+            primeiro_nome = nome_completo.split()[0]
 
 
+            navegador.find_element(By.XPATH, '//button[contains(@aria-label, "Adicionar nota")]').click()
 
+
+            campo_texto = navegador.find_element(By.ID, 'custom-message')
+            mensagem = f'Olá {primeiro_nome},\n\nEspero que esteja bem! Gostaria de nos conectar para trocarmos ideias e experiências sobre programação e desenvolvimento. Acredito que podemos aprender muito um com o outro e crescer juntos na nossa área.\n\nFico aguardando sua conexão!\n\nAtenciosamente,\n[Seu Nome]'
+            campo_texto.clear()
+            campo_texto.send_keys(mensagem)
+
+
+            navegador.find_element(By.XPATH, '//button[contains(@aria-label, "Enviar")]').click()
+
+except Exception as e:
+    print(f"Ocorreu um erro: {str(e)}")
